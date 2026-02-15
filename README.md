@@ -87,15 +87,15 @@ This project demonstrates an end-to-end insurance data engineering pipeline usin
 
 ---
 
-## 2. Silver Layer
+### 2. Silver Layer
 
-### Policy Master (SCD Type 2)
+## Policy Master (SCD Type 2)
 
 - Used `dlt.read_stream()` to ingest from Bronze.
 - Applied `dlt.apply_changes()` with `stored_as_scd_type=2`.
 - Ensures historical records are preserved while new/updated records are inserted.
 
-### Policy Events (Flattened)
+## Policy Events (Flattened)
 
 - Flattened nested JSON arrays: `transactions`, `coverages`, `party_roles`.
 - Applied `dlt.expect_or_drop` to enforce data quality.
