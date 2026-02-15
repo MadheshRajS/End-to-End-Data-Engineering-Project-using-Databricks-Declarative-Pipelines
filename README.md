@@ -72,3 +72,11 @@ dlt.table(
     name="policy_master",
     table_properties={"quality": "bronze"}
 )
+```python
+def policy_master_bronze():
+        return (
+            spark.readStream.format("cloudFiles")
+            .option("cloudFiles.format", "csv")
+            .load(source_path_policy_master)
+            .select("*", "_metadata.file_path", current_timestamp().alias("_ingestion_timestamp"))
+        )
