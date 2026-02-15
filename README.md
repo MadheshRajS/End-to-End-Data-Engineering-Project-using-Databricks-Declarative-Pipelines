@@ -1,1 +1,51 @@
-# End-to-End-Data-Engineering-Project-using-Databricks-Declarative-Pipelines
+# Insurance Data Engineering Project
+
+## Overview
+
+This project demonstrates a **high-level insurance data engineering pipeline** using **Databricks**, **Unity Catalog**, and **Declarative Delta Live Tables (DLT)**. The pipeline ingests raw policy and policy event data, transforms it through multiple layers (Bronze, Silver, Gold), applies **SCD Type 2** on policy master, flattens nested events, and produces aggregated insights.  
+
+The main goals of this project are:
+
+- Learn **Databricks Delta Live Tables** for declarative pipeline development.
+- Use **Unity Catalog** to manage schema and table permissions.
+- Implement **Bronze, Silver, Gold** architecture for structured data flow.
+- Apply **SCD Type 2** to maintain historical policy master records.
+- Flatten nested JSON policy events.
+- Aggregate policy data at the Gold layer for analytics readiness.
+
+---
+
+## Architecture
+
+![Insurance Data Pipeline Architecture](A_flowchart_diagram_titled_"Insurance_Data_Pipelin.png)
+
+**Description:**
+
+1. **Raw Data Sources**  
+   - `policy_master` → CSV file  
+   - `policy_events` → JSON file  
+
+2. **Autoloader**  
+   - Ingests raw files automatically into the **Bronze layer**.
+   - Ensures incremental ingestion of new files.
+
+3. **Bronze Layer**  
+   - Stores raw data as Delta tables.
+   - Adds metadata columns: `_ingestion_timestamp`, `_load_batch_id`, `_record_hash`.
+   - Handles duplicates and prepares raw data for transformations.
+
+4. **Silver Layer**  
+   - **Policy Master Table (SCD Type 2)**: Maintains historical changes using `apply_changes()`.  
+   - **Policy Events Table**: Flattens nested JSON arrays (transactions, coverages, party roles).  
+   - Data quality checks applied using `expect_or_drop` for critical columns.
+
+5. **Gold Layer**  
+   - Aggregates policy data for analysis:  
+     - Total events per policy.  
+     - Total transactions and total premium.  
+   - Joins policy master SCD2 table with flattened policy events.
+
+---
+
+## Folder & File Structure
+
