@@ -75,52 +75,38 @@ dlt.table(
 
 ---
 
-# Insurance Data Engineering Project
+## 3. Silver Layer: Policy Master & Flattening
 
-This project demonstrates an end-to-end insurance data engineering pipeline using **Databricks**, **Delta Live Tables (DLT)**, **Unity Catalog**, and **DBT** for modeling. The pipeline is designed to handle incremental ingestion, historical data management, and aggregated analytics.
+The Silver layer transforms raw Bronze data into a cleaned, queryable state.
 
----
+### Policy Master (SCD Type 2)
+* **Ingestion:** Uses `dlt.read_stream()` to consume incremental data from the Bronze layer.
+* **Logic:** Applied `dlt.apply_changes()` with `stored_as_scd_type=2`.
+* **Purpose:** This ensures historical records are preserved. When a policy is updated, the pipeline creates a new version instead of overwriting, allowing for point-in-time analysis.
 
-## Project Layers
-
-### 1. Bronze Layer
-- Raw CSV/JSON files ingested using **Autoloader**.
-- Stored as Delta tables for incremental processing.
-- Serves as the source for Silver layer transformations.
-
-### 2. Silver Layer
-
-#### **Policy Master (SCD Type 2)**
-- Ingested from Bronze using `dlt.read_stream()`.
-- Applied `dlt.apply_changes()` with `stored_as_scd_type=2`.
-- Maintains historical records; new/updated records are inserted with versioning.
-- Key columns:
-  - `__CURRENT` – indicates the latest record version
-  - `__START_DATE` – record effective start date
-  - `__END_DATE` – record effective end date
-
-#### **Policy Events (Flattened)**
-- Flattened nested JSON arrays such as `transactions`, `coverages`, `party_roles`.
-- Applied `dlt.expect_or_drop` to enforce data quality rules.
-
-### 3. Gold Layer
-
-#### **Aggregated Policy Events**
-- Compute metrics:
-  - `total_events`
-  - `total_transactions`
-  - `total_premium`
-- Joined aggregated metrics with the latest SCD Type 2 policy master records.
-- Stored final aggregated table as:  
-  `ins_dev.gold.policy_master_gold`
+### Policy Events (Flattened)
+* **Logic:** Flattened nested JSON arrays including `transactions`, `coverages`, and `party_roles`.
+* **Data Quality:** Applied `expect_or_drop` constraints to enforce schema integrity and filter out invalid records before they reach the Silver tier.
 
 ---
 
-## Verifying SCD Type 2 Functionality
+## 🥇 Gold Layer: Analytics & Aggregation
 
-1. Query the Silver layer policy master table:
+The Gold layer provides the final consumption-ready table located at `ins_dev.gold.policy_master_gold`.
+
+* **Aggregations:** Calculates key metrics per policy:
+  * `total_events`
+  * `total_transactions`
+  * `total_premium`
+* **Join Logic:** Aggregated event data is joined with the **latest SCD2 policy master records** to provide a unified view of the current policy state alongside its historical performance.
+
+---
+
+## ✅ How to Verify SCD2 Works
+
+To verify that the Slowly Changing Dimension logic is correctly tracking history, run the following query in a Databricks SQL Warehouse:
 
 ```sql
-SELECT * 
-FROM ins_dev.silver.policy_master_scd2 
+-- Query the Silver policy master table
+SELECT * FROM ins_dev.silver.policy_master_scd2 
 WHERE policy_number = 'POL00000001';
