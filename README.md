@@ -73,52 +73,52 @@ dlt.table(
     table_properties={"quality": "bronze"}
 )
 
-# Insurance Data Pipeline Project
+# Insurance Data Engineering Project
 
-This project demonstrates an end-to-end insurance data engineering pipeline using **Databricks**, **Unity Catalog**, and **Declarative Delta Live Tables (DLT)**.
-
----
-
-## 1. Bronze Layer
-
-- Raw ingestion of policy master and policy events data.
-- CSV and JSON files are stored under `/Volumes/ins_dev/bronze/...`.
-- **Autoloader** is used to incrementally ingest raw files.
+This project demonstrates an end-to-end insurance data engineering pipeline using **Databricks**, **Delta Live Tables (DLT)**, **Unity Catalog**, and **DBT** for modeling. The pipeline is designed to handle incremental ingestion, historical data management, and aggregated analytics.
 
 ---
+
+## Project Layers
+
+### 1. Bronze Layer
+- Raw CSV/JSON files ingested using **Autoloader**.
+- Stored as Delta tables for incremental processing.
+- Serves as the source for Silver layer transformations.
 
 ### 2. Silver Layer
 
-## Policy Master (SCD Type 2)
-
-- Used `dlt.read_stream()` to ingest from Bronze.
+#### **Policy Master (SCD Type 2)**
+- Ingested from Bronze using `dlt.read_stream()`.
 - Applied `dlt.apply_changes()` with `stored_as_scd_type=2`.
-- Ensures historical records are preserved while new/updated records are inserted.
+- Maintains historical records; new/updated records are inserted with versioning.
+- Key columns:
+  - `__CURRENT` – indicates the latest record version
+  - `__START_DATE` – record effective start date
+  - `__END_DATE` – record effective end date
 
-## Policy Events (Flattened)
+#### **Policy Events (Flattened)**
+- Flattened nested JSON arrays such as `transactions`, `coverages`, `party_roles`.
+- Applied `dlt.expect_or_drop` to enforce data quality rules.
 
-- Flattened nested JSON arrays: `transactions`, `coverages`, `party_roles`.
-- Applied `dlt.expect_or_drop` to enforce data quality.
+### 3. Gold Layer
 
----
-
-## 3. Gold Layer
-
-- Aggregated policy events:
+#### **Aggregated Policy Events**
+- Compute metrics:
   - `total_events`
   - `total_transactions`
   - `total_premium`
-- Joined aggregated data with latest SCD2 policy master records.
-- Stored final aggregated Delta table under `ins_dev.gold.policy_master_gold`.
+- Joined aggregated metrics with the latest SCD Type 2 policy master records.
+- Stored final aggregated table as:  
+  `ins_dev.gold.policy_master_gold`
 
 ---
 
-## How to Verify SCD2 Works
+## Verifying SCD Type 2 Functionality
 
-- Query the Silver policy master table to inspect historical versions:
+1. Query the Silver layer policy master table:
 
 ```sql
 SELECT * 
-FROM ins_dev.silver.policy_master_scd2
+FROM ins_dev.silver.policy_master_scd2 
 WHERE policy_number = 'POL00000001';
-
