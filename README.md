@@ -72,4 +72,32 @@ dlt.table(
     name="policy_master",
     table_properties={"quality": "bronze"}
 )
+## 3. Silver Layer
+
+### Policy Master (SCD Type 2)
+- Used `dlt.read_stream()` to ingest from Bronze.
+- Applied `dlt.apply_changes()` with `stored_as_scd_type=2`.
+- Ensures historical records are preserved while new/updated records are inserted.
+
+### Policy Events (Flattened)
+- Flattened nested JSON arrays: `transactions`, `coverages`, `party_roles`.
+- Applied `expect_or_drop` to enforce data quality.
+
+---
+
+## 4. Gold Layer
+- Aggregated policy events:
+  - `total_events`
+  - `total_transactions`
+  - `total_premium`
+- Joined aggregated data with latest SCD2 policy master records.
+- Stored final aggregated Delta table under `ins_dev.gold.policy_master_gold`.
+
+---
+
+## How to Verify SCD2 Works
+1. Query the Silver policy master table:
+```sql
+SELECT * FROM ins_dev.silver.policy_master_scd2
+WHERE policy_number = 'POL00000001';
 
