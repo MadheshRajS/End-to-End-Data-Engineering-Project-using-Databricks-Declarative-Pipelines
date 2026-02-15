@@ -109,3 +109,30 @@ def policy_master_bronze():
 ```sql
 SELECT * FROM ins_dev.silver.policy_master_scd2
 WHERE policy_number = 'POL00000001';
+```
+- Insert or update policy master data and re-run the pipeline.  
+  Older records will automatically have `__CURRENT = False` while the latest version will have `__CURRENT = True`.
+
+---
+
+## Notes
+
+- All layers are managed using **Unity Catalog**.
+- **Declarative Delta Live Tables (DLT)** ensures reproducibility and proper data lineage.
+- **Autoloader** correctly handles incremental ingestion of raw CSV/JSON files.
+
+---
+
+## Future Improvements
+
+- Implement additional data quality rules using `dlt.expect` for Silver tables.
+- Extend the Gold layer to include customer analytics, claims, or reporting.
+- Integrate with **DBT** for modeling transformations in the Silver/Gold layers.
+
+---
+
+## References
+
+- [Databricks Delta Live Tables](https://docs.databricks.com/workflows/delta-live-tables/index.html)  
+- [Unity Catalog](https://docs.databricks.com/data-governance/unity-catalog/index.html)  
+- [Autoloader](https://docs.databricks.com/ingestion/auto-loader/index.html)
