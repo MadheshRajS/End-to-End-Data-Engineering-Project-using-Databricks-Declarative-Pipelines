@@ -73,20 +73,37 @@ dlt.table(
     table_properties={"quality": "bronze"}
 )
 
-## 3. Silver Layer
+# Insurance Data Pipeline Project
+
+This project demonstrates an end-to-end insurance data engineering pipeline using **Databricks**, **Unity Catalog**, and **Declarative Delta Live Tables (DLT)**.
+
+---
+
+## 1. Bronze Layer
+
+- Raw ingestion of policy master and policy events data.
+- CSV and JSON files are stored under `/Volumes/ins_dev/bronze/...`.
+- **Autoloader** is used to incrementally ingest raw files.
+
+---
+
+## 2. Silver Layer
 
 ### Policy Master (SCD Type 2)
+
 - Used `dlt.read_stream()` to ingest from Bronze.
 - Applied `dlt.apply_changes()` with `stored_as_scd_type=2`.
 - Ensures historical records are preserved while new/updated records are inserted.
 
 ### Policy Events (Flattened)
+
 - Flattened nested JSON arrays: `transactions`, `coverages`, `party_roles`.
-- Applied `expect_or_drop` to enforce data quality.
+- Applied `dlt.expect_or_drop` to enforce data quality.
 
 ---
 
-## 4. Gold Layer
+## 3. Gold Layer
+
 - Aggregated policy events:
   - `total_events`
   - `total_transactions`
@@ -97,17 +114,11 @@ dlt.table(
 ---
 
 ## How to Verify SCD2 Works
-1. Query the Silver policy master table:
-```sql
-SELECT * FROM ins_dev.silver.policy_master_scd2
-WHERE policy_number = 'POL00000001';
-
-
-## How to Verify SCD2 Works
 
 - Query the Silver policy master table to inspect historical versions:
 
 ```sql
-SELECT * FROM ins_dev.silver.policy_master_scd2
+SELECT * 
+FROM ins_dev.silver.policy_master_scd2
 WHERE policy_number = 'POL00000001';
 
