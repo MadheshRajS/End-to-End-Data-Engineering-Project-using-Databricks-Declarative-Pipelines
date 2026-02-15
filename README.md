@@ -4,7 +4,7 @@
 
 This project demonstrates a **high-level insurance data engineering pipeline** using **Databricks**, **Unity Catalog**, and **Declarative Delta Live Tables (DLT)**. The pipeline ingests raw policy and policy event data, transforms it through multiple layers (Bronze, Silver, Gold), applies **SCD Type 2** on policy master, flattens nested events, and produces aggregated insights.  
 
-The main goals of this project are:
+**Main Goals:**
 
 - Learn **Databricks Delta Live Tables** for declarative pipeline development.
 - Use **Unity Catalog** to manage schema and table permissions.
@@ -17,9 +17,9 @@ The main goals of this project are:
 
 ## Architecture
 
-![Insurance Data Pipeline Architecture](A_flowchart_diagram_titled_"Insurance_Data_Pipelin.png)
+![Insurance Data Pipeline Architecture](A_flowchart_diagram_titled_"Insurance_Data_Pipelin.png")
 
-**Description:**
+**Pipeline Components:**
 
 1. **Raw Data Sources**  
    - `policy_master` → CSV file  
@@ -41,12 +41,9 @@ The main goals of this project are:
 
 5. **Gold Layer**  
    - Aggregates policy data for analysis:  
-     - Total events per policy.  
-     - Total transactions and total premium.  
+     - Total events per policy  
+     - Total transactions and total premium  
    - Joins policy master SCD2 table with flattened policy events.
-
----
-
 
 ---
 
@@ -60,7 +57,7 @@ The main goals of this project are:
 ---
 
 ### 2. Bronze Layer
-- Read raw files using **Autoloader** (`cloudFiles`).  
+- Read raw files using **Autoloader (`cloudFiles`)**.  
 - Added metadata columns:  
   - `_ingestion_timestamp`  
   - `_load_batch_id`  
@@ -68,15 +65,17 @@ The main goals of this project are:
 - Stored as Delta tables in **Unity Catalog** under `ins_dev.bronze`.  
 
 ```python
-dlt.table(
+import dlt
+from pyspark.sql.functions import current_timestamp
+
+@dlt.table(
     name="policy_master",
     table_properties={"quality": "bronze"}
 )
-```python
 def policy_master_bronze():
-        return (
-            spark.readStream.format("cloudFiles")
-            .option("cloudFiles.format", "csv")
-            .load(source_path_policy_master)
-            .select("*", "_metadata.file_path", current_timestamp().alias("_ingestion_timestamp"))
-        )
+    return (
+        spark.readStream.format("cloudFiles")
+        .option("cloudFiles.format", "csv")
+        .load(source_path_policy_master)
+        .select("*", "_metadata.file_path", current_timestamp().alias("_ingestion_timestamp"))
+    )
