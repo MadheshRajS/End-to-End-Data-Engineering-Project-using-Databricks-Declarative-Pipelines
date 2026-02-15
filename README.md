@@ -17,7 +17,7 @@ This project demonstrates a **high-level insurance data engineering pipeline** u
 
 ## Architecture
 
-![Insurance Data Pipeline Architecture](A_flowchart_diagram_titled_"Insurance_Data_Pipelin.png")
+![Insurance Data Pipeline Architecture]([A_flowchart_diagram_titled_"Insurance_Data_Pipelin.png](https://github.com/MadheshRajS/End-to-End-Data-Engineering-Project-using-Databricks-Declarative-Pipelines/blob/main/Architecture%20diagram.png?raw=true))
 
 **Pipeline Components:**
 
