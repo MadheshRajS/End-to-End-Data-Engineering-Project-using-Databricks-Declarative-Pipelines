@@ -47,5 +47,29 @@ The main goals of this project are:
 
 ---
 
-## Folder & File Structure
+
+---
+
+## Step-by-Step Implementation
+
+### 1. Raw Data Generation
+- `policy_master` (CSV) and `policy_events` (JSON) are simulated using **PySpark**.  
+- Introduced **2% duplicates** in the policy master table.  
+- Policy events are nested JSON arrays with transactions, coverages, and party roles.  
+
+---
+
+### 2. Bronze Layer
+- Read raw files using **Autoloader** (`cloudFiles`).  
+- Added metadata columns:  
+  - `_ingestion_timestamp`  
+  - `_load_batch_id`  
+  - `_record_hash`  
+- Stored as Delta tables in **Unity Catalog** under `ins_dev.bronze`.  
+
+```python
+dlt.table(
+    name="policy_master",
+    table_properties={"quality": "bronze"}
+)
 
