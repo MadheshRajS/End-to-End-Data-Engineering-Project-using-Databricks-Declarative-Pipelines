@@ -72,6 +72,7 @@ dlt.table(
     name="policy_master",
     table_properties={"quality": "bronze"}
 )
+
 ## 3. Silver Layer
 
 ### Policy Master (SCD Type 2)
@@ -97,6 +98,15 @@ dlt.table(
 
 ## How to Verify SCD2 Works
 1. Query the Silver policy master table:
+```sql
+SELECT * FROM ins_dev.silver.policy_master_scd2
+WHERE policy_number = 'POL00000001';
+
+
+## How to Verify SCD2 Works
+
+- Query the Silver policy master table to inspect historical versions:
+
 ```sql
 SELECT * FROM ins_dev.silver.policy_master_scd2
 WHERE policy_number = 'POL00000001';
