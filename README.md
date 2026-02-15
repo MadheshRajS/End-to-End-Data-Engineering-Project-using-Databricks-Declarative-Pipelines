@@ -73,6 +73,8 @@ dlt.table(
     table_properties={"quality": "bronze"}
 )
 
+---
+
 # Insurance Data Engineering Project
 
 This project demonstrates an end-to-end insurance data engineering pipeline using **Databricks**, **Delta Live Tables (DLT)**, **Unity Catalog**, and **DBT** for modeling. The pipeline is designed to handle incremental ingestion, historical data management, and aggregated analytics.
