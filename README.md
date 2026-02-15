@@ -79,6 +79,4 @@ def policy_master_bronze():
         .load(source_path_policy_master)
         .select("*", "_metadata.file_path", current_timestamp().alias("_ingestion_timestamp"))
     )
-
-
-**### 3. Gold Layer**
+```
